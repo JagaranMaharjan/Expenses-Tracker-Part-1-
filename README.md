@@ -1,4 +1,4 @@
-# bill_tracker_6
+# bill_tracker
 
 A new Flutter application.
 

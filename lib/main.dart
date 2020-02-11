@@ -1,4 +1,6 @@
 import 'package:bill_tracker_6/model/transaction.dart';
+import 'package:bill_tracker_6/widgets/new_transaction.dart';
+import 'package:bill_tracker_6/widgets/transaction_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -23,17 +25,25 @@ class _BillPageState extends State<BillPage> {
   String title;
   double amount;
 
-  void addTransaction(String title, double amount) {
+  void _addTransaction(String title, double amount) {
     final newTx =
         Transaction(title: title, amount: amount, date: DateTime.now());
     setState(
       () {
-        userTransaction.add(newTx);
+        _userTransaction.add(newTx);
       },
     );
   }
 
-  List<Transaction> userTransaction = [
+  void _showAddTransaction(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (ctx) {
+          return NewTransaction(addTx: _addTransaction);
+        });
+  }
+
+  List<Transaction> _userTransaction = [
     Transaction(
       title: "Watch",
       amount: 2000.0,
@@ -66,7 +76,7 @@ class _BillPageState extends State<BillPage> {
                 child: Text("Chart"),
               ),
             ),
-            Card(
+            /*Card(
               margin: EdgeInsets.all(10),
               child: Container(
                 padding: EdgeInsets.all(8),
@@ -106,8 +116,10 @@ class _BillPageState extends State<BillPage> {
                   ],
                 ),
               ),
-            ),
-            Column(
+            ),*/
+            // NewTransaction(addTx: _addTransaction),
+            TransactionList(_userTransaction),
+            /*Column(
               children: userTransaction.map(
                 (tx) {
                   return Card(
@@ -149,9 +161,13 @@ class _BillPageState extends State<BillPage> {
                   );
                 },
               ).toList(),
-            ),
+            ),*/
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _showAddTransaction(context),
       ),
     );
   }

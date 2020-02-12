@@ -1,4 +1,5 @@
 import 'package:bill_tracker_6/model/transaction.dart';
+import 'package:bill_tracker_6/widgets/chart.dart';
 import 'package:bill_tracker_6/widgets/new_transaction.dart';
 import 'package:bill_tracker_6/widgets/transaction_list.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,21 @@ class Expenses extends StatelessWidget {
     return MaterialApp(
       title: "Bill Tracker",
       home: BillPage(),
+      theme: ThemeData(
+        primaryColor: Colors.deepOrangeAccent,
+        accentColor: Colors.deepOrangeAccent,
+        fontFamily: "font1",
+        textTheme: TextTheme(
+          title: TextStyle(
+              fontFamily: "font2", fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        appBarTheme: AppBarTheme(
+          textTheme: TextTheme(
+            title: TextStyle(
+                fontFamily: "font1", fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -37,10 +53,11 @@ class _BillPageState extends State<BillPage> {
 
   void _showAddTransaction(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        builder: (ctx) {
-          return NewTransaction(addTx: _addTransaction);
-        });
+      context: context,
+      builder: (ctx) {
+        return NewTransaction(addTx: _addTransaction);
+      },
+    );
   }
 
   List<Transaction> _userTransaction = [
@@ -60,22 +77,37 @@ class _BillPageState extends State<BillPage> {
       date: DateTime.now(),
     ),
   ];
+
+  List<Transaction> get _recentTransactions {
+    return _userTransaction.where(
+      (tx) {
+        return tx.date.isAfter(
+          DateTime.now().subtract(
+            Duration(days: 7),
+          ),
+        );
+      },
+    ).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Track your bills !"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            color: Colors.white,
+            onPressed: () => _showAddTransaction(context),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Container(
-              width: double.infinity,
-              child: Card(
-                child: Text("Chart"),
-              ),
-            ),
+            Chart(_recentTransactions),
             /*Card(
               margin: EdgeInsets.all(10),
               child: Container(

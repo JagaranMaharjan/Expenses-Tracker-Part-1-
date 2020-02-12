@@ -57,7 +57,7 @@ class _NewTransactionState extends State<NewTransaction> {
             ),
             RaisedButton(
               colorBrightness: Brightness.dark,
-              color: Colors.green,
+              color: Theme.of(context).accentColor,
               child: Text(
                 "Add Product",
                 style:

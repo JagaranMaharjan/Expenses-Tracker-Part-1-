@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class NewTransaction extends StatefulWidget {
   // String title;
@@ -16,14 +17,33 @@ class _NewTransactionState extends State<NewTransaction> {
 
   final amountController = new TextEditingController();
 
+  DateTime _selectDateTime;
+
   void _submitData() {
     String title = titleController.text;
     double amount = double.parse(amountController.text);
-    if (title.isEmpty || amount <= 0) {
+    if (title.isEmpty || amount <= 0 || _selectDateTime == null) {
       return;
     }
-    widget.addTx(title, amount);
+    widget.addTx(title, amount, _selectDateTime);
     Navigator.pop(context);
+  }
+
+  void _pickDate(BuildContext ctx) {
+    showDatePicker(
+            context: ctx,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2020),
+            lastDate: DateTime.now())
+        .then(
+      (pickDate) {
+        setState(
+          () {
+            _selectDateTime = pickDate;
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -54,6 +74,26 @@ class _NewTransactionState extends State<NewTransaction> {
               },*/
               controller: amountController,
               keyboardType: TextInputType.number,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  _selectDateTime == null
+                      ? "No date choosen"
+                      : "Picked Date : ${DateFormat.yMd().format(_selectDateTime).toString()}",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                FlatButton(
+                  child: Text(
+                    "Choose a date",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  onPressed: () {
+                    _pickDate(context);
+                  },
+                ),
+              ],
             ),
             RaisedButton(
               colorBrightness: Brightness.dark,

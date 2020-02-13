@@ -41,9 +41,8 @@ class _BillPageState extends State<BillPage> {
   String title;
   double amount;
 
-  void _addTransaction(String title, double amount) {
-    final newTx =
-        Transaction(title: title, amount: amount, date: DateTime.now());
+  void _addTransaction(String title, double amount, DateTime dateTime) {
+    final newTx = Transaction(title: title, amount: amount, date: dateTime);
     setState(
       () {
         _userTransaction.add(newTx);
@@ -61,7 +60,7 @@ class _BillPageState extends State<BillPage> {
   }
 
   List<Transaction> _userTransaction = [
-    Transaction(
+    /*Transaction(
       title: "Watch",
       amount: 2000.0,
       date: DateTime.now(),
@@ -75,7 +74,7 @@ class _BillPageState extends State<BillPage> {
       title: "Laptop",
       amount: 200000.0,
       date: DateTime.now(),
-    ),
+    ),*/
   ];
 
   List<Transaction> get _recentTransactions {

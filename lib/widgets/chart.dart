@@ -36,6 +36,7 @@ class Chart extends StatelessWidget {
   }
 
   Chart(this.recentTransacton);
+
   @override
   Widget build(BuildContext context) {
     return Card(

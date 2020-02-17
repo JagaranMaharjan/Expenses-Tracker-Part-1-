@@ -3,14 +3,24 @@ import 'package:bill_tracker_6/widgets/chart.dart';
 import 'package:bill_tracker_6/widgets/new_transaction.dart';
 import 'package:bill_tracker_6/widgets/transaction_list.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+//import 'package:flutter/services.dart';
 
-void main() => runApp(Expenses());
+void main() {
+  runApp(Expenses());
+
+  //-----auto rotation is disabled-------
+  /*WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {
+    runApp(Expenses());
+  });*/
+}
 
 class Expenses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Bill Tracker",
       home: BillPage(),
       theme: ThemeData(
@@ -40,14 +50,27 @@ class BillPage extends StatefulWidget {
 class _BillPageState extends State<BillPage> {
   String title;
   double amount;
+  bool _showChart = false;
 
   void _addTransaction(String title, double amount, DateTime dateTime) {
-    final newTx = Transaction(title: title, amount: amount, date: dateTime);
+    final newTx = Transaction(
+        title: title,
+        amount: amount,
+        date: dateTime,
+        id: DateTime.now().toString());
     setState(
       () {
         _userTransaction.add(newTx);
       },
     );
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransaction.removeWhere((tx) {
+        return tx.id == id;
+      });
+    });
   }
 
   void _showAddTransaction(BuildContext context) {
@@ -59,23 +82,7 @@ class _BillPageState extends State<BillPage> {
     );
   }
 
-  List<Transaction> _userTransaction = [
-    /*Transaction(
-      title: "Watch",
-      amount: 2000.0,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      title: "Tv",
-      amount: 20000.0,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      title: "Laptop",
-      amount: 200000.0,
-      date: DateTime.now(),
-    ),*/
-  ];
+  List<Transaction> _userTransaction = [];
 
   List<Transaction> get _recentTransactions {
     return _userTransaction.where(
@@ -91,108 +98,69 @@ class _BillPageState extends State<BillPage> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    bool isLandScape = mediaQuery.orientation == Orientation.landscape;
+
+    final appBar = AppBar(
+      title: Text("Track your bills !"),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          color: Colors.white,
+          onPressed: () => _showAddTransaction(context),
+        ),
+      ],
+    );
+
+    final txListWidget = Container(
+        height: (mediaQuery.size.height * 0.7) -
+            appBar.preferredSize.height -
+            mediaQuery.padding.top,
+        child: TransactionList(_userTransaction, _deleteTransaction));
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Track your bills !"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            color: Colors.white,
-            onPressed: () => _showAddTransaction(context),
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Chart(_recentTransactions),
-            /*Card(
-              margin: EdgeInsets.all(10),
-              child: Container(
-                padding: EdgeInsets.all(8),
-                child: Column(
-                  children: <Widget>[
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "Enter product name",
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onChanged: (value) {
-                        title = value;
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "Enter product amount",
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onChanged: (value) {
-                        amount = double.parse(value);
-                      },
-                      keyboardType: TextInputType.number,
-                    ),
-                    RaisedButton(
-                      colorBrightness: Brightness.dark,
-                      color: Colors.green,
-                      child: Text(
-                        "Add Product",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      onPressed: () {
-                        addTransaction(title, amount);
-                      },
-                    ),
-                  ],
-                ),
+            if (isLandScape) //sdk updated in pubspec.yaml as 2.2.3
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    "Show Chart",
+                    style: Theme.of(context).textTheme.title.copyWith(
+                        color: Theme.of(context).accentColor,
+                        fontFamily: "font1",
+                        fontSize: 25),
+                  ),
+                  Switch(
+                    value: _showChart,
+                    onChanged: (val) {
+                      setState(() {
+                        _showChart = val;
+                      });
+                    },
+                  )
+                ],
               ),
-            ),*/
-            // NewTransaction(addTx: _addTransaction),
-            TransactionList(_userTransaction),
-            /*Column(
-              children: userTransaction.map(
-                (tx) {
-                  return Card(
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          child: Text(
-                            "\$ " + tx.amount.toString(),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.green, width: 2),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          margin: EdgeInsets.all(5),
-                          padding: EdgeInsets.all(5),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              tx.title,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            Text(
-                              DateFormat.yMMMEd().add_jms().format(tx.date),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ).toList(),
-            ),*/
+            if (!isLandScape)
+              Container(
+                height: (mediaQuery.size.height * 0.3) -
+                    appBar.preferredSize.height -
+                    mediaQuery.padding.top,
+                child: Chart(_recentTransactions),
+              ),
+            if (!isLandScape) txListWidget,
+            if (isLandScape)
+              _showChart
+                  ? Container(
+                      height: (mediaQuery.size.height * 0.7) -
+                          appBar.preferredSize.height -
+                          mediaQuery.padding.top,
+                      child: Chart(_recentTransactions))
+                  : TransactionList(_userTransaction, _deleteTransaction),
           ],
         ),
       ),

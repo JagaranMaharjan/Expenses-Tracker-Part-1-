@@ -2,8 +2,9 @@ import 'package:bill_tracker_6/model/transaction.dart';
 import 'package:bill_tracker_6/widgets/chart.dart';
 import 'package:bill_tracker_6/widgets/new_transaction.dart';
 import 'package:bill_tracker_6/widgets/transaction_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter/services.dart';
+import 'dart:io';
 
 void main() {
   runApp(Expenses());
@@ -101,16 +102,29 @@ class _BillPageState extends State<BillPage> {
     final mediaQuery = MediaQuery.of(context);
     bool isLandScape = mediaQuery.orientation == Orientation.landscape;
 
-    final appBar = AppBar(
-      title: Text("Track your bills !"),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          color: Colors.white,
-          onPressed: () => _showAddTransaction(context),
-        ),
-      ],
-    );
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text("Track Your Bills"),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                GestureDetector(
+                  child: Icon(CupertinoIcons.add),
+                  onTap: () => _showAddTransaction(context),
+                ),
+              ],
+            ),
+          )
+        : AppBar(
+            title: Text("Track your bills !"),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.add),
+                color: Colors.white,
+                onPressed: () => _showAddTransaction(context),
+              ),
+            ],
+          );
 
     final txListWidget = Container(
         height: (mediaQuery.size.height * 0.7) -
@@ -118,9 +132,8 @@ class _BillPageState extends State<BillPage> {
             mediaQuery.padding.top,
         child: TransactionList(_userTransaction, _deleteTransaction));
 
-    return Scaffold(
-      appBar: appBar,
-      body: SingleChildScrollView(
+    final pageBody = SingleChildScrollView(
+      child: SingleChildScrollView(
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
@@ -135,7 +148,7 @@ class _BillPageState extends State<BillPage> {
                         fontFamily: "font1",
                         fontSize: 25),
                   ),
-                  Switch(
+                  Switch.adaptive(
                     value: _showChart,
                     onChanged: (val) {
                       setState(() {
@@ -160,14 +173,24 @@ class _BillPageState extends State<BillPage> {
                           appBar.preferredSize.height -
                           mediaQuery.padding.top,
                       child: Chart(_recentTransactions))
-                  : TransactionList(_userTransaction, _deleteTransaction),
+                  : txListWidget,
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _showAddTransaction(context),
-      ),
     );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () => _showAddTransaction(context),
+                  ),
+          );
   }
 }

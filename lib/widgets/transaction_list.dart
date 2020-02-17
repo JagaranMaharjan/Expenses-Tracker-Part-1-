@@ -9,78 +9,80 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 400,
-      child: transaction.isEmpty
-          ? Column(
+    return transaction.isEmpty
+        ? LayoutBuilder(builder: (context, constraints) {
+            return Column(
               children: <Widget>[
-                Text(
-                  "No Transaction Has Been Added",
-                  style: Theme.of(context).textTheme.title.copyWith(
-                      color: Colors.deepOrangeAccent,
-                      fontFamily: "font1",
-                      fontSize: 25),
+                Container(
+                  height: constraints.maxHeight * 0.25,
+                  child: Text(
+                    "No Transaction Has Been Added",
+                    style: Theme.of(context).textTheme.title.copyWith(
+                        color: Colors.deepOrangeAccent,
+                        fontFamily: "font1",
+                        fontSize: 25),
+                  ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: constraints.maxHeight * 0.05,
                 ),
                 Image.asset(
                   "assets/images/box.png",
-                  height: 250,
+                  height: constraints.maxHeight * 0.7,
                 ),
               ],
-            )
-          : ListView.builder(
-              itemBuilder: (ctx, index) {
-                return Card(
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(vertical: 10.0),
-                    leading: CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Theme.of(context).accentColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: FittedBox(
-                          child: Text(
-                            "\$ " + transaction[index].amount.toString(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .title
-                                .copyWith(color: Colors.white, fontSize: 18),
-                          ),
+            );
+          })
+        : ListView.builder(
+            itemBuilder: (ctx, index) {
+              return Card(
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+                  leading: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Theme.of(context).accentColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FittedBox(
+                        child: Text(
+                          "\$ " + transaction[index].amount.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .title
+                              .copyWith(color: Colors.white, fontSize: 18),
                         ),
                       ),
                     ),
-                    title: Text(
-                      transaction[index].title,
-                      style: Theme.of(context).textTheme.title,
-                    ),
-                    subtitle: Text(
-                      DateFormat.yMMMEd()
-                          .add_jms()
-                          .format(transaction[index].date),
-                      style: Theme.of(context)
-                          .textTheme
-                          .title
-                          .copyWith(color: Colors.grey, fontSize: 12),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete_forever,
-                        color: Theme.of(context).accentColor,
-                      ),
-                      iconSize: 40,
-                      splashColor: Colors.blue,
-                      onPressed: () {
-                        deleteTransactions(transaction[index].id);
-                      },
-                    ),
                   ),
-                );
-              },
-              itemCount: transaction.length,
-            ),
-    );
+                  title: Text(
+                    transaction[index].title,
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                  subtitle: Text(
+                    DateFormat.yMMMEd()
+                        .add_jms()
+                        .format(transaction[index].date),
+                    style: Theme.of(context)
+                        .textTheme
+                        .title
+                        .copyWith(color: Colors.grey, fontSize: 12),
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.delete_forever,
+                      color: Theme.of(context).accentColor,
+                    ),
+                    iconSize: 40,
+                    splashColor: Colors.blue,
+                    onPressed: () {
+                      deleteTransactions(transaction[index].id);
+                    },
+                  ),
+                ),
+              );
+            },
+            itemCount: transaction.length,
+          );
   }
 }
 
